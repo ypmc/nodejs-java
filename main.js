@@ -1,4 +1,4 @@
-﻿var json = require("JSON2");
+var json = require("JSON2");
 var log4js = require('log4js');
 
 log4js.configure({
@@ -18,6 +18,11 @@ log4js.configure({
 var logger = log4js.getLogger('test');
 logger.setLevel('debug');
 
+function Result(code,msg){
+	this.errcode = code;
+	this.errmsg = msg;
+	this.timestamp = new Date().getTime();
+}
 function parserequest(info,res){
 	logger.debug(info);
 	var exec = require('child_process').exec, child;
@@ -25,22 +30,16 @@ function parserequest(info,res){
 	var data;
 	child = exec(exec_path,function (error, stdout, stderr){	
 		logger.debug(stdout);	
-		
-		data = "{errcode:0,errmsg:'" + stdout +"'}"
 		res.writeHead(200, {'Content-Type': 'text/plain;charset=utf-8;'}); 
-		res.end(JSON.stringify(data));
+		res.end(JSON.stringify(new Result(0,stdout));
 	
 		if(error !== null){
 			logger.debug('stderr: ' + stderr);
 			logger.debug('exec error: ' + error);
-			data = "{errcode:500,errmsg:'" + error + "'}"
 			res.writeHead(200, {'Content-Type': 'text/plain;charset=utf-8;'}); 
-			res.end(JSON.stringify(data));
+			res.end(JSON.stringify(500,error));
 		}
-	});
-
-	
-	
+	});	
 }
 
 var http = require('http');  
@@ -80,6 +79,6 @@ var requests = function (req, res){  
 }  
   
 server.on('request',requests);  
-server.listen(1337, "127.0.0.1");    
-logger.debug("Server running at http://127.0.0.1:1337/");
+server.listen(1337);    
+logger.debug("Server running at Port 1337");
  
